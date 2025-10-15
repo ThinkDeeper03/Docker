@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mariadb:10.11
+    labels:
+      - autoheal=true
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    volumes:
+      - db:/var/lib/mysql
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=user
+      - MYSQL_USER=user
+
+
+  redis:
+    image: redis:alpine
+    labels:
+      - autoheal=true
+    restart: always
+
+
+  app:
+    image: nextcloud
+    labels:
+      - autoheal=true
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - nextcloud:/var/www/html
+      - clamav-config:/etc/clamav
+      - clamav-db:/var/lib/clamav
+    environment:
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=user
+      - MYSQL_USER=user
+      - MYSQL_HOST=db
+      - NEXTCLOUD_TRUSTED_DOMAINS=my.domain.com
+
+  clamav:
+    image: mkodockx/docker-clamav
+    labels:
+      - autoheal=true
+
+    ports:
+      - "3310:3310"
+
+volumes:
+  nextcloud:
+  db:
+  clamav-config:
+  clamav-db:
