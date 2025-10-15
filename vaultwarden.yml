@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    labels:
+      - autoheal=true
+    container_name: vaultwarden
+    restart: always
+    environment:
+      # Aktiviert den "invite only" Modus – der erste Account (Admin) kann sich trotzdem registrieren
+      INVITE_ONLY: "true"
+      # Sollten Einladungen nur via Admin erfolgen, muss der erste Account einmal manuell registriert werden.
+      # Optional: SIGNUPS_ALLOWED kann in manchen Setups zusätzlich angepasst werden, aber INVITE_ONLY übernimmt in der Regel die gewünschte Funktion.
+      # SIGNUPS_ALLOWED: "true"
+      
+      # Setze hier einen starken Admin Token – damit aktivierst Du die Admin Oberfläche.
+      ADMIN_TOKEN: "myAdminPassword"
+      
+      # (Optional) Websocket-Unterstützung, wenn Du Push-Benachrichtigungen oder ähnliches benötigst.
+      WEBSOCKET_ENABLED: "true"
+      
+      # Domain für generierte Links in E-Mail Nachrichten
+      DOMAIN: "https://my.domain.com"
+      
+      # SMTP Einstellungen (anpassen an Deinen SMTP Provider - example for gmail)
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_FROM: "...@gmail.com"
+      SMTP_PORT: "587"
+      SMTP_SECURITY: "starttls"
+      SMTP_USERNAME: "...@gmail.com"
+      #  You need your Email token here, not your Password
+      SMTP_PASSWORD: "MyEmailToken"
+
+      # you can allow or forbid sign-ups
+      SIGNUPS_ALLOWED: "false"
+      
+    volumes:
+      - ./vw-data:/data
+    ports:
+      # Passe die Portzuordnung ggf. Deinen Bedürfnissen an (z.B. 443 für https).
+      - "80:80"
